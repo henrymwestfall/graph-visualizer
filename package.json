@@ -1,0 +1,16 @@
+{
+  "name": "graph_visualizer",
+  "version": "1.0.0",
+  "description": "A browser-based tool for animating evolving social network graphs.",
+  "source": "templates/index.html",
+  "scripts": {
+    "start": "flask run",
+    "build": "tsc -p .; mv src/*.js* static/; browserify static/index.js > static/bundle.js",
+    "deploy": "npm run build; npm run start"
+  },
+  "author": "Henry Westfall",
+  "license": "ISC",
+  "dependencies": {
+    "browserify": "^17.0.0"
+  }
+}
