@@ -14,6 +14,9 @@ class Node {
         this.position = new Vector(x, y);
         this.neighbors = new Set();
     }
+    resetNeighbors() {
+        this.neighbors.clear();
+    }
 }
 exports.Node = Node;
 exports.default = { Vector, Node };

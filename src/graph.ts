@@ -22,6 +22,10 @@ export class Graph {
     }
 
     loadEdgesFromArray(edges: Array<Array<number>>) {
+        this.edges.clear()
+        this.nodes.forEach(node => {
+            node.resetNeighbors();
+        })
         edges.forEach(edge => {
             let u = this.nodes[edge[0]];
             let v = this.nodes[edge[1]];

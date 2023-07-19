@@ -18,6 +18,10 @@ export class Node {
         this.position = new Vector(x, y);
         this.neighbors = new Set();
     }
+
+    resetNeighbors() {
+        this.neighbors.clear()
+    }
 }
 
 export default { Vector, Node };

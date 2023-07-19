@@ -117,6 +117,10 @@ class Graph {
         this.loadEdgesFromArray(json["edges"]);
     }
     loadEdgesFromArray(edges) {
+        this.edges.clear();
+        this.nodes.forEach(node => {
+            node.resetNeighbors();
+        });
         edges.forEach(edge => {
             let u = this.nodes[edge[0]];
             let v = this.nodes[edge[1]];
@@ -155,8 +159,16 @@ window.onload = () => {
     let animator = new animator_1.Animator(graph, canvas);
     let fileInterface = new file_interface_1.FileInterface();
     let settingInterface = new setting_interface_1.SettingInterface();
+    let frameCounter = document.getElementById("frameCounter");
+    let frame = 0;
     fileInterface.addEventListener("file_loaded", (event) => {
-        graph.loadEdgesFromJSON(event.detail.graphdata[25]);
+        setInterval(() => {
+            if (event.detail.graphdata.length == frame)
+                frame = 0;
+            graph.loadEdgesFromJSON(event.detail.graphdata[frame]);
+            frame += 1;
+            frameCounter.innerHTML = `Frame ${frame}`;
+        }, 750);
     });
     requestAnimationFrame(() => runNextFrame(animator, new Date().getTime()));
 };
@@ -177,6 +189,9 @@ class Node {
         this.id = node_id;
         this.position = new Vector(x, y);
         this.neighbors = new Set();
+    }
+    resetNeighbors() {
+        this.neighbors.clear();
     }
 }
 exports.Node = Node;
