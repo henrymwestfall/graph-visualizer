@@ -6,6 +6,43 @@ class Vector {
         this.x = x;
         this.y = y;
     }
+    copy() {
+        return new Vector(this.x, this.y);
+    }
+    add(other) {
+        this.x += other.x;
+        this.y += other.y;
+    }
+    plus(other) {
+        let v = this.copy();
+        v.add(other);
+        return v;
+    }
+    minus(other) {
+        let v = this.copy();
+        v.x -= other.x;
+        v.y -= other.y;
+        return v;
+    }
+    dividedBy(scalar) {
+        let v = this.copy();
+        v.x /= scalar;
+        v.y /= scalar;
+        return v;
+    }
+    times(scalar) {
+        let v = this.copy();
+        v.x *= scalar;
+        v.y *= scalar;
+        return v;
+    }
+    normalized() {
+        let length = Math.hypot(this.x, this.y);
+        return this.dividedBy(length);
+    }
+    negative() {
+        return this.times(-1);
+    }
 }
 exports.Vector = Vector;
 class Node {
@@ -13,6 +50,8 @@ class Node {
         this.id = node_id;
         this.position = new Vector(x, y);
         this.neighbors = new Set();
+        this.color = "gray";
+        this.salience = 0.0;
     }
     resetNeighbors() {
         this.neighbors.clear();

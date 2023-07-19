@@ -23,7 +23,7 @@ window.onload = () => {
         setInterval(() => {
             if (event.detail.graphdata.length == frame)
                 frame = 0;
-            graph.loadEdgesFromJSON(event.detail.graphdata[frame]);
+            graph.loadFromJSON(event.detail.graphdata[frame]);
             frame += 1;
             frameCounter.innerHTML = `Frame ${frame}`;
         }, 750);

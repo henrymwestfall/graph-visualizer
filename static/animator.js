@@ -5,9 +5,9 @@ const node_1 = require("./node");
 class Animator {
     constructor(graph, canvas) {
         // animation settings
-        this.gravityFactor = 0.2;
-        this.attractionFactor = 0.6;
-        this.repulsionFactor = 0.25;
+        this.gravityFactor = 2.0;
+        this.attractionFactor = 5.0;
+        this.repulsionFactor = 25.0;
         this.graph = graph;
         this.canvas = canvas;
         this.context = this.canvas.getContext('2d');
@@ -18,7 +18,7 @@ class Animator {
         this.context.fillStyle = "black";
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
         // draw each edge in the graph
-        this.context.strokeStyle = "#AAA";
+        this.context.strokeStyle = "rgba(255, 255, 255, 0.15)";
         this.graph.getEdges().forEach(edge => {
             let start = edge[0].position;
             let end = edge[1].position;
@@ -28,33 +28,31 @@ class Animator {
             this.context.stroke();
         });
         // draw each node in the graph
-        this.context.fillStyle = "cyan";
         this.graph.getNodes().forEach(node => {
+            this.context.fillStyle = node.color;
             this.context.beginPath();
-            this.context.arc(node.position.x + this.renderOffset.x, node.position.y + this.renderOffset.y, 3, 0, 2 * Math.PI);
+            this.context.arc(node.position.x + this.renderOffset.x, node.position.y + this.renderOffset.y, 10.0, 0, 2 * Math.PI);
             this.context.fill();
         });
     }
     update(dt) {
         this.graph.getNodes().forEach(node => {
-            let forceX = -node.position.x * this.gravityFactor;
-            let forceY = -node.position.y * this.gravityFactor;
+            let force = node.position.negative().times(this.gravityFactor);
             this.graph.getNodes().forEach(other => {
                 if (other !== node) {
                     let dist = Math.hypot(node.position.x - other.position.x, node.position.y - other.position.y) + 0.01; // distance forced to be nonzero
+                    let baseForce = node.position.minus(other.position).normalized();
                     if (node.neighbors.has(other) && dist >= 30) { // attraction force
-                        forceX += this.attractionFactor * (other.position.x - node.position.x) / dist;
-                        forceY += this.attractionFactor * (other.position.y - node.position.y) / dist;
+                        force.add(baseForce.times(-dist * this.attractionFactor));
                     }
                     else { // repulsion force
-                        forceX += this.repulsionFactor * (node.position.x - other.position.x) / dist;
-                        forceY += this.repulsionFactor * (node.position.y - other.position.y) / dist;
+                        let mag = this.repulsionFactor * (node.neighbors.size + 1) * (other.neighbors.size + 1) / dist;
+                        force.add(baseForce.times(mag));
                     }
                 }
             });
             // move the node based on the force and elapsed time
-            node.position.x += forceX * dt;
-            node.position.y += forceY * dt;
+            node.position.add(force.times(0.0001));
         });
     }
 }

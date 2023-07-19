@@ -4,9 +4,19 @@ export class Graph {
     private edges: Set<Array<Node>>;
     private nodes: Array<Node>;
 
+    private colors: Array<string>;
+
     constructor() {
         this.edges = new Set();
         this.nodes = [];
+
+        this.colors = [
+            "dodgerblue",
+            "limegreen",
+            "darkorange",
+            "blueviolet",
+            "deepbluesky"
+        ]
 
         for (let i = 0; i < 200; i++) {
             let node = new Node(i);
@@ -17,8 +27,16 @@ export class Graph {
 
     }
 
-    loadEdgesFromJSON(json: Object) {
+    loadFromJSON(json: Object) {
+        // load the edges
         this.loadEdgesFromArray(json["edges"]);
+
+        // load the node data. TODO: allow for different color schemes
+        for (let i = 0; i < this.nodes.length; i++) {
+            let mostSalientIssue = json["most_salient_issue"][i]
+            this.nodes[i].color = this.colors[mostSalientIssue]
+            this.nodes[i].salience = Math.abs(json[`issue_${mostSalientIssue}`][i])
+        }
     }
 
     loadEdgesFromArray(edges: Array<Array<number>>) {

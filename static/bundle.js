@@ -6,9 +6,9 @@ const node_1 = require("./node");
 class Animator {
     constructor(graph, canvas) {
         // animation settings
-        this.gravityFactor = 0.2;
-        this.attractionFactor = 0.6;
-        this.repulsionFactor = 0.25;
+        this.gravityFactor = 2.0;
+        this.attractionFactor = 5.0;
+        this.repulsionFactor = 25.0;
         this.graph = graph;
         this.canvas = canvas;
         this.context = this.canvas.getContext('2d');
@@ -19,7 +19,7 @@ class Animator {
         this.context.fillStyle = "black";
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
         // draw each edge in the graph
-        this.context.strokeStyle = "#AAA";
+        this.context.strokeStyle = "rgba(255, 255, 255, 0.15)";
         this.graph.getEdges().forEach(edge => {
             let start = edge[0].position;
             let end = edge[1].position;
@@ -29,33 +29,31 @@ class Animator {
             this.context.stroke();
         });
         // draw each node in the graph
-        this.context.fillStyle = "cyan";
         this.graph.getNodes().forEach(node => {
+            this.context.fillStyle = node.color;
             this.context.beginPath();
-            this.context.arc(node.position.x + this.renderOffset.x, node.position.y + this.renderOffset.y, 3, 0, 2 * Math.PI);
+            this.context.arc(node.position.x + this.renderOffset.x, node.position.y + this.renderOffset.y, 10.0, 0, 2 * Math.PI);
             this.context.fill();
         });
     }
     update(dt) {
         this.graph.getNodes().forEach(node => {
-            let forceX = -node.position.x * this.gravityFactor;
-            let forceY = -node.position.y * this.gravityFactor;
+            let force = node.position.negative().times(this.gravityFactor);
             this.graph.getNodes().forEach(other => {
                 if (other !== node) {
                     let dist = Math.hypot(node.position.x - other.position.x, node.position.y - other.position.y) + 0.01; // distance forced to be nonzero
+                    let baseForce = node.position.minus(other.position).normalized();
                     if (node.neighbors.has(other) && dist >= 30) { // attraction force
-                        forceX += this.attractionFactor * (other.position.x - node.position.x) / dist;
-                        forceY += this.attractionFactor * (other.position.y - node.position.y) / dist;
+                        force.add(baseForce.times(-dist * this.attractionFactor));
                     }
                     else { // repulsion force
-                        forceX += this.repulsionFactor * (node.position.x - other.position.x) / dist;
-                        forceY += this.repulsionFactor * (node.position.y - other.position.y) / dist;
+                        let mag = this.repulsionFactor * (node.neighbors.size + 1) * (other.neighbors.size + 1) / dist;
+                        force.add(baseForce.times(mag));
                     }
                 }
             });
             // move the node based on the force and elapsed time
-            node.position.x += forceX * dt;
-            node.position.y += forceY * dt;
+            node.position.add(force.times(0.0001));
         });
     }
 }
@@ -106,6 +104,13 @@ class Graph {
     constructor() {
         this.edges = new Set();
         this.nodes = [];
+        this.colors = [
+            "dodgerblue",
+            "limegreen",
+            "darkorange",
+            "blueviolet",
+            "deepbluesky"
+        ];
         for (let i = 0; i < 200; i++) {
             let node = new node_1.Node(i);
             node.position.x = Math.floor(Math.random() * 200) - 100;
@@ -113,8 +118,15 @@ class Graph {
             this.nodes.push(node);
         }
     }
-    loadEdgesFromJSON(json) {
+    loadFromJSON(json) {
+        // load the edges
         this.loadEdgesFromArray(json["edges"]);
+        // load the node data. TODO: allow for different color schemes
+        for (let i = 0; i < this.nodes.length; i++) {
+            let mostSalientIssue = json["most_salient_issue"][i];
+            this.nodes[i].color = this.colors[mostSalientIssue];
+            this.nodes[i].salience = Math.abs(json[`issue_${mostSalientIssue}`][i]);
+        }
     }
     loadEdgesFromArray(edges) {
         this.edges.clear();
@@ -165,7 +177,7 @@ window.onload = () => {
         setInterval(() => {
             if (event.detail.graphdata.length == frame)
                 frame = 0;
-            graph.loadEdgesFromJSON(event.detail.graphdata[frame]);
+            graph.loadFromJSON(event.detail.graphdata[frame]);
             frame += 1;
             frameCounter.innerHTML = `Frame ${frame}`;
         }, 750);
@@ -182,6 +194,43 @@ class Vector {
         this.x = x;
         this.y = y;
     }
+    copy() {
+        return new Vector(this.x, this.y);
+    }
+    add(other) {
+        this.x += other.x;
+        this.y += other.y;
+    }
+    plus(other) {
+        let v = this.copy();
+        v.add(other);
+        return v;
+    }
+    minus(other) {
+        let v = this.copy();
+        v.x -= other.x;
+        v.y -= other.y;
+        return v;
+    }
+    dividedBy(scalar) {
+        let v = this.copy();
+        v.x /= scalar;
+        v.y /= scalar;
+        return v;
+    }
+    times(scalar) {
+        let v = this.copy();
+        v.x *= scalar;
+        v.y *= scalar;
+        return v;
+    }
+    normalized() {
+        let length = Math.hypot(this.x, this.y);
+        return this.dividedBy(length);
+    }
+    negative() {
+        return this.times(-1);
+    }
 }
 exports.Vector = Vector;
 class Node {
@@ -189,6 +238,8 @@ class Node {
         this.id = node_id;
         this.position = new Vector(x, y);
         this.neighbors = new Set();
+        this.color = "gray";
+        this.salience = 0.0;
     }
     resetNeighbors() {
         this.neighbors.clear();
