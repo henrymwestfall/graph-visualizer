@@ -32,3 +32,5 @@ class FileInterface {
         return this.data;
     }
 }
+
+export default FileInterface;

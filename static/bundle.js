@@ -101,6 +101,7 @@ exports.default = Graph;
 Object.defineProperty(exports, "__esModule", { value: true });
 const animator_1 = require("./animator");
 const graph_1 = require("./graph");
+const setting_interface_1 = require("./setting_interface");
 function runNextFrame(animator, timeOfLastFrame) {
     const now = new Date().getTime();
     const dt = (now - timeOfLastFrame) / 1000.0;
@@ -112,10 +113,11 @@ window.onload = () => {
     let canvas = document.getElementById("canvas");
     let graph = new graph_1.Graph();
     let animator = new animator_1.Animator(graph, canvas);
+    let settingInterface = new setting_interface_1.SettingInterface();
     requestAnimationFrame(() => runNextFrame(animator, new Date().getTime()));
 };
 
-},{"./animator":1,"./graph":2}],4:[function(require,module,exports){
+},{"./animator":1,"./graph":2,"./setting_interface":5}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Node = exports.Vector = void 0;
@@ -135,5 +137,37 @@ class Node {
 }
 exports.Node = Node;
 exports.default = { Vector, Node };
+
+},{}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SettingInterface = void 0;
+class SettingInterface {
+    constructor() {
+        // query HTML elements for each setting
+        this.secondsPerFrame = document.getElementById("secondsPerFrame");
+        this.attributeForColorPartition = document.getElementById("attributeForColorPartition");
+        this.sizeNodesByDegree = document.getElementById("sizeNodesByDegree");
+        this.runAnimation = document.getElementById("runAnimation");
+        // set initial values
+        this.secondsPerFrame.valueAsNumber = 1.0;
+        this.sizeNodesByDegree.checked = false;
+        this.runAnimation.checked = true;
+    }
+    getSecondsPerFrame() {
+        return parseFloat(this.secondsPerFrame.value);
+    }
+    getAttributeForColorPartition() {
+        return this.attributeForColorPartition;
+    }
+    shouldSizeNodesByDegree() {
+        return this.sizeNodesByDegree;
+    }
+    shouldRunAnimation() {
+        return this.runAnimation;
+    }
+}
+exports.SettingInterface = SettingInterface;
+exports.default = SettingInterface;
 
 },{}]},{},[3]);

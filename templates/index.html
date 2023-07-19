@@ -6,13 +6,34 @@
         <script type="module" src="{{ url_for('static', filename='bundle.js') }}"></script>
     </head>
     <body>
-        <h1>Test Page</h1>
-        <canvas id="canvas" width="1200px" height="1200px"></canvas>
+        <h1>Graph Visualizer</h1>
+        
+        <div id="settings">
+            <label for="secondsPerFrame">Seconds Per Frame</label>
+            <input id="secondsPerFrame" type="number">
+
+            <label for="attributeForColorPartition">Attribute For Color Partition</label>
+            <select id="attributeForColorPartition">
+                <option value="none">None</option>
+            </select>
+
+            <label for="sizeNodesByDegree">Size Nodes By Degree</label>
+            <input id="sizeNodesByDegree" type="checkbox">
+
+            <label for="runAnimation">Run Animation</label>
+            <input id="runAnimation" type="checkbox">
+        </div>
+
+        <br>
 
         <form id="upload">
             <label for="file">Animation JSON</label>
             <input type="file" id="file" accept=".json">
             <button>Upload</button>
         </form>
+
+        <canvas id="canvas" width="1200px" height="1200px"></canvas>
+
+        
     </body>
 </html>
