@@ -71,6 +71,10 @@ export class Node {
     resetNeighbors() {
         this.neighbors.clear()
     }
+
+    getMaxSalience() {
+        return this.salience;
+    }
 }
 
 export default { Vector, Node };

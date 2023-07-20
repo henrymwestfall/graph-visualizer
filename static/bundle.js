@@ -32,7 +32,7 @@ class Animator {
         this.graph.getNodes().forEach(node => {
             this.context.fillStyle = node.color;
             this.context.beginPath();
-            this.context.arc(node.position.x + this.renderOffset.x, node.position.y + this.renderOffset.y, 10.0, 0, 2 * Math.PI);
+            this.context.arc(node.position.x + this.renderOffset.x, node.position.y + this.renderOffset.y, Math.max(2.0, 20.0 * node.getMaxSalience() / 100.0), 0, 2 * Math.PI);
             this.context.fill();
         });
     }
@@ -108,7 +108,7 @@ class Graph {
             "dodgerblue",
             "limegreen",
             "darkorange",
-            "blueviolet",
+            "gold",
             "deepbluesky"
         ];
         for (let i = 0; i < 200; i++) {
@@ -243,6 +243,9 @@ class Node {
     }
     resetNeighbors() {
         this.neighbors.clear();
+    }
+    getMaxSalience() {
+        return this.salience;
     }
 }
 exports.Node = Node;

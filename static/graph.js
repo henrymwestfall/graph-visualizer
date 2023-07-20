@@ -10,7 +10,7 @@ class Graph {
             "dodgerblue",
             "limegreen",
             "darkorange",
-            "blueviolet",
+            "gold",
             "deepbluesky"
         ];
         for (let i = 0; i < 200; i++) {

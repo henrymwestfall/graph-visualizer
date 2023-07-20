@@ -14,7 +14,7 @@ export class Graph {
             "dodgerblue",
             "limegreen",
             "darkorange",
-            "blueviolet",
+            "gold",
             "deepbluesky"
         ]
 
